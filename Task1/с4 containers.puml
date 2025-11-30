@@ -1,0 +1,82 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+LAYOUT_LEFT_RIGHT()
+title Целевая архитектура «Будущее 2.0»
+
+Person(dataAnalyst, "Аналитик данных", "Работает с витриной и BI")
+Person(clinicUser, "Сотрудник клиники", "Работа с пациентами")
+Person(mlEngineer, "Инженер по данным/ИИ", "Разработка и эксплуатация моделей")
+
+System_Ext(partnersExt, "Партнёрские системы", "Фармкомпании, оборудование, финтехи")
+System_Ext(regulators, "Регуляторы", "Получение регуляторной отчётности")
+
+System_Boundary(future20, "«Будущее 2.0»") {
+
+
+  Container(apiGateway, "API Gateway", "REST/GraphQL", "Единая точка входа во внутренние сервисы")
+
+  Container_Boundary(integrationLayer, "Integration Layer") {
+    Container(eventBus, "Kafka Event Bus", "Kafka", "Потоки доменных событий")
+  }
+
+  Container_Boundary(dataPortalBoundary, "Data Portal & BI") {
+    Container(dataPortal, "Data Portal", "Web", "Catalog, self-service requests, dataset discovery")
+    Container(biPlatform, "BI Platform", "Power BI", "Dashboards, отчёты, доступ к витринам")
+  }
+
+  Container_Boundary(dataPlatform, "Data Platform (Lakehouse)") {
+    ContainerDb(dataLakehouse, "Data Lakehouse", "Object Storage + ACID", "Bronze/Silver/Gold zones")
+    Container(semanticLayer, "Semantic Layer", "dbt / semantic", "Модели, метрики и витрины")
+  }
+
+  Container_Boundary(clinicDomain, "Clinical Domain") {
+    ContainerDb(ehrSystem, "Clinical databse", "Postgres", "БД клиники")
+    Container(clinicalServices, "Clinical Services", "Microservices", "Приём пациентов, исследования, операции")
+    Container(aiServices, "AI Services", "Python", "Диагностика и мед. модели")
+  }
+
+  Container_Boundary(fintechDomain, "Fintech / Banking Domain") {
+    ContainerDb(coreBanking, "Core Banking", "Postgres", "Транзакции, счета")
+  }
+
+  Container_Boundary(legacyZone, "Legacy Systems") {
+    ContainerDb(legacyDwh, "Legacy DWH (SQL Server 2008)", "MS SQL", "Монолитный DWH, история")
+  }
+
+  Container_Boundary(securityContour, "Security") {
+    Container(iamSystem, "IAM / SSO", "Identity Platform", "Аутентификация и авторизация")
+  }
+}
+
+Rel(dataAnalyst, dataPortal, "Доступ к витрине данных")
+Rel(dataAnalyst, biPlatform, "Просмотр отчётов")
+Rel(clinicUser, clinicalServices, "Работа с процессами клиники")
+Rel(mlEngineer, aiServices, "Разработка моделей")
+
+Rel(partnersExt, apiGateway, "API интеграция")
+Rel(apiGateway, clinicalServices, "REST API")
+Rel(apiGateway, coreBanking, "REST API")
+
+Rel(clinicalServices, eventBus, "Medical events")
+Rel(coreBanking, eventBus, "Financial events")
+
+Rel(eventBus, dataLakehouse, "Streaming ingestion")
+Rel(ehrSystem, dataLakehouse, "CDC / Batch")
+Rel(legacyDwh, dataLakehouse, "Historical loads")
+
+Rel(dataLakehouse, semanticLayer, "Curated datasets")
+Rel(semanticLayer, biPlatform, "Metrics, datamarts")
+Rel(dataPortal, semanticLayer, "Dataset search")
+
+
+Rel(dataLakehouse, aiServices, "Anonymized training data")
+
+Rel(clinicalServices, ehrSystem, "CRUD")
+Rel(clinicalServices, aiServices, "ML inference requests")
+Rel(dataPortal, biPlatform, "Opens embedded reports")
+
+Rel(dataPortal, iamSystem, "SSO")
+Rel(biPlatform, iamSystem, "Authorization")
+
+Rel(regulators, biPlatform, "Регуляторная отчётность")
+@enduml
