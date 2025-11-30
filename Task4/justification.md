@@ -26,3 +26,16 @@
 - Любые изменения контролируются через Terraform plan.
 
 - Можно легко масштабировать инфраструктуру, добавляя новые VM, базы, сети.
+
+ **Результаты выполнения команды terraform apply:**
+
+  <img width="1407" height="589" alt="apply" src="https://github.com/user-attachments/assets/d5d233b3-d80b-4c34-8a88-f62121de6010" />
+  
+
+  <img width="2416" height="348" alt="Screenshot 2025-11-30 150816" src="https://github.com/user-attachments/assets/1e1cdcec-b157-46d4-9045-356d3b041327" />
+
+
+  <img width="2364" height="414" alt="Screenshot 2025-11-30 152415" src="https://github.com/user-attachments/assets/549f7632-513e-4f3f-a066-3cc6fe21816a" />
+
+
+
