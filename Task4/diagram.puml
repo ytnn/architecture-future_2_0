@@ -1,0 +1,34 @@
+@startuml
+title Автоматизация развёртывания инфраструктуры
+
+actor DevOps as Dev
+
+node "Terraform" as TF
+
+cloud "Yandex Cloud" as YC {
+  
+  rectangle "Сеть (VPC)\nПодсеть (Subnet)\n(уже существуют,\nвне Terraform)" as Net
+
+  rectangle "Диск (yandex_compute_disk)" as Disk
+  rectangle "Виртуальная машина (yandex_compute_instance)" as VM
+}
+
+Dev --> TF : init / plan / apply
+
+TF --> Disk : создаёт диск
+TF --> VM : создаёт VM
+VM --> Net : подключение к существующей подсети
+
+note right of TF
+Управляется Terraform:
+- Диск
+- Виртуальная машина
+- NIC VM
+end note
+
+note left of Net
+Не управляется Terraform:
+- VPC
+- Subnet
+end note
+@enduml
