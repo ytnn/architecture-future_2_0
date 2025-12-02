@@ -1,0 +1,34 @@
+@startuml
+left to right direction
+title Data Flow Diagram «Будущее 2.0»
+
+rectangle "Партнёрские системы\n(фармкомпании, оборудование, финтех)" as Partners
+rectangle "Регуляторы" as Regulators
+
+rectangle "Integration Layer\n(API Gateway, Kafka Event Bus)" as Integration
+rectangle "Data Platform (Lakehouse)\n(Data Lakehouse, Semantic Layer)" as DataPlatform
+rectangle "Data Portal & BI\n(Data Portal, BI Platform)" as Analytics
+rectangle "Clinical Domain\n(Clinical Services, AI Services,\nClinical Database)" as Clinical
+rectangle "Fintech / Banking Domain\n(Core Banking)" as Fintech
+rectangle "Legacy Systems\n(Legacy DWH)" as Legacy
+rectangle "Security\n(IAM / SSO)" as Security
+
+Partners --> Integration : API-интеграции / потоки данных
+Clinical --> Integration : Medical events\n(CDC, domain events)
+Fintech --> Integration : Financial events\n(CDC, domain events)
+Integration --> DataPlatform : Streaming ingestion\n(Kafka topics)
+Clinical --> DataPlatform : CDC / Batch выгрузки
+Fintech --> DataPlatform : CDC / Batch выгрузки
+Legacy --> DataPlatform : Historical loads\n(миграция)
+DataPlatform --> Analytics : Curated datasets,\nmetrics, datamarts
+Analytics --> Regulators : Регуляторная отчётность
+Analytics --> Security : SSO / RLS / CLS
+Integration --> Fintech : API / команды\nдля финтех-сервисов
+
+Security --> Clinical
+Security --> Fintech
+Security --> DataPlatform
+
+DataPlatform --> Clinical : Обезличенные данные\nдля моделей
+Clinical --> Clinical : AI Services inference\n(внутридоменный поток)
+@enduml
